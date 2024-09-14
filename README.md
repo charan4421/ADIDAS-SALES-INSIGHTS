@@ -2,10 +2,40 @@
 ***This project presents an interactive sales analysis dashboard for Adidas, visualized in Power BI.
 It provides comprehensive insights into Adidas' sales performance across various dimensions such as time, regions, products, and retailers.
 The dashboard integrates Python scripts for data preprocessing and leverages machine learning techniques for sales prediction and optimization*****.
+***PYTHON CODE***
+import pandas as pd
+import numpy as np
 
-Machine Learning Integration
+# Loading the  dataset into the python
+df = pd.read_csv('adidas_sales_data.csv')
+df.fillna(0, inplace=True)
+df['Invoice Date'] = pd.to_datetime(df['Invoice Date'])
+start_date = '2020-01-15'
+end_date = '2021-12-17'
+filtered_df = df[(df['Invoice Date'] >= start_date) & (df['Invoice Date'] <= end_date)]
+monthly_sales = filtered_df.groupby(filtered_df['Invoice Date'].dt.to_period('M')).agg({
+    'Total Sales': 'sum',
+    'Units Sold': 'sum'
+}).reset_index()
+print(monthly_sales.head())
 
-To provide advanced insights and predictive capabilities:
+**Machine Learning Integration**
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+X = filtered_df[['Units Sold', 'Price per Unit', 'Operating Margin']]
+y = filtered_df['Total Sales']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+mse = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse:.2f}")
+example_data = np.array([[5000, 45, 0.42]])  # Example input (Units Sold, Price per Unit, Operating Margin)
+predicted_sales = model.predict(example_data)
+print(f"Predicted Sales: ${predicted_sales[0]:,.2f}")
+
+***To provide advanced insights and predictive capabilities:
 
 Predictive Sales Model: Using historical sales data, a machine learning model was built in Python to predict future sales trends.
 
